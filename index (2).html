@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Política de Descontos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #0077cc;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --text: #333;
+      --muted: #666;
+      --radius: 8px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.1);
+      --header-h: 60px;
+    }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body { font-family:'Roboto',sans-serif; background:var(--background); color:var(--text); }
+    header {
+      background: var(--primary);
+      height: var(--header-h);
+      display: flex; align-items: center;
+      padding: 0 24px; color: #fff;
+      font-size: 1.25rem; font-weight: 500;
+    }
+    header .creator { margin-left:auto; font-size:0.875rem; color:#fff; }
+    .container {
+      max-width: 1000px; margin: 16px auto;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .tab-list {
+      display: flex; background: var(--surface);
+      border-bottom:1px solid #ddd; margin:0 24px;
+    }
+    .tab-list li {
+      list-style:none; padding:12px 24px; cursor:pointer;
+      font-weight:500; color:var(--text);
+      background: var(--surface); margin-right:8px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      transition: background 0.3s;
+    }
+    .tab-list li.active {
+      background: #fff; box-shadow: inset 0 -3px 0 var(--primary);
+      color: var(--primary);
+    }
+    .actions {
+      display: flex; justify-content: space-between; align-items:center;
+      padding:16px 24px; background: var(--surface);
+      border-bottom:1px solid #ddd;
+    }
+    .actions input {
+      flex:1; max-width:300px; padding:10px 14px;
+      border:2px solid var(--primary); border-radius:var(--radius);
+      outline:none; font-size:1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .actions input:focus { box-shadow: 0 0 0 3px rgba(0,119,204,0.3); }
+    .actions button {
+      background: var(--primary); color:#fff;
+      border:none; padding:10px 18px;
+      border-radius:var(--radius); cursor:pointer;
+      font-weight:500; margin-left:16px;
+    }
+    .tabs-content { padding:0 24px 24px; }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .table-container {
+      overflow-x:auto; padding-top:16px;
+    }
+    table {
+      width:100%; border-collapse:collapse;
+    }
+    thead th {
+      background: var(--primary); color:#fff;
+      padding:12px; text-align:left; font-weight:500;
+      position: sticky; top:0; z-index:1;
+    }
+    tbody tr.group-header td {
+      background: var(--background); padding:8px 12px;
+      font-weight:600; border-bottom:1px solid #ccc;
+    }
+    tbody tr.data-row td {
+      padding:10px 12px; border-bottom:1px solid #eee;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <header>
+    Política de Descontos
+    <div class="creator">Criado por: Gean Lucas Souza Ferreira – Supervisor Administrativo</div>
+  </header>
+  <div class="container">
+    <ul class="tab-list"></ul>
+    <div class="actions">
+      <input id="searchInput" placeholder="🔍 Pesquisar..." />
+      <button id="exportPdfBtn">📄 Gerar PDF</button>
+    </div>
+    <div class="tabs-content"></div>
+  </div>
+  <script>
+  (function(){
+    const data = {"Merces": [{"Posto Concorrente": "Posto Cacique ", "Cidade": "Rio Pomba", "Bandeira": "Ipiranga", "Produto": "Diesel S10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Cacique ", "Cidade": "Rio Pomba", "Bandeira": "Ipiranga", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Cacique ", "Cidade": "Rio Pomba", "Bandeira": "Ipiranga", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Cacique ", "Cidade": "Rio Pomba", "Bandeira": "Ipiranga", "Produto": "Gasolina Ad.", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": 0.1, "Observações": "Pra quem completa o tanque."}, {"Posto Concorrente": "Posto São José", "Cidade": "Mercês", "Bandeira": "", "Produto": "Diesel s500", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto dado fora de aplicativo", "Observações": "O preço deles em média é 0,08 centavos mais caro que o nosso"}, {"Posto Concorrente": "Posto São José", "Cidade": "Mercês", "Bandeira": "", "Produto": "Diesel S10", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto dado fora de aplicativo", "Observações": "O preço deles em média é 0,08 centavos mais caro que o nosso"}, {"Posto Concorrente": "Posto São José", "Cidade": "Mercês", "Bandeira": "", "Produto": "Gasolina", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto dado fora de aplicativo", "Observações": "O preço deles em média é 0,08 centavos mais caro que o nosso"}, {"Posto Concorrente": "Posto São José", "Cidade": "Mercês", "Bandeira": "", "Produto": "Etanol", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto dado fora de aplicativo", "Observações": "O preço deles em média é 0,08 centavos mais caro que o nosso e dão desconto no pagamento em crédito tbm."}, {"Posto Concorrente": "Postos SBT", "Cidade": "Mercês", "Bandeira": "Branca", "Produto": "Diesel s500", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto no Aplicativo", "Observações": ""}, {"Posto Concorrente": "Postos SBT", "Cidade": "Mercês", "Bandeira": "Branca", "Produto": "Diesel S10", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto no Aplicativo", "Observações": ""}, {"Posto Concorrente": "Postos SBT", "Cidade": "Mercês", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto no Aplicativo", "Observações": ""}, {"Posto Concorrente": "Postos SBT", "Cidade": "Mercês", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto no Aplicativo", "Observações": ""}, {"Posto Concorrente": "Posto Canário", "Cidade": "Rio Pomba", "Bandeira": "Rio Branco", "Produto": "Diesel s500", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto no Aplicativo e Fora Também", "Observações": ""}, {"Posto Concorrente": "Posto Canário", "Cidade": "Rio Pomba", "Bandeira": "Rio Branco", "Produto": "Diesel S10", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto no Aplicativo e Fora Também", "Observações": ""}, {"Posto Concorrente": "Posto Canário", "Cidade": "Rio Pomba", "Bandeira": "Rio Branco", "Produto": "Gasolina", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto no Aplicativo e Fora Também", "Observações": ""}, {"Posto Concorrente": "Posto Canário", "Cidade": "Rio Pomba", "Bandeira": "Rio Branco", "Produto": "Etanol", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto no Aplicativo e Fora Também", "Observações": ""}, {"Posto Concorrente": "Posto Kalixto", "Cidade": "Mercês", "Bandeira": "", "Produto": "Diesel s500", "Tipo do Desconto": 0.1, "Condição do Desconto": "Sem aplicativo, desconto no posto.", "Observações": ""}, {"Posto Concorrente": "Posto Kalixto", "Cidade": "Mercês", "Bandeira": "", "Produto": "Diesel S10", "Tipo do Desconto": 0.1, "Condição do Desconto": "Sem aplicativo, desconto no posto.", "Observações": ""}, {"Posto Concorrente": "Posto Kalixto", "Cidade": "Mercês", "Bandeira": "", "Produto": "Gasolina", "Tipo do Desconto": 0.1, "Condição do Desconto": "Sem aplicativo, desconto no posto.", "Observações": ""}, {"Posto Concorrente": "Posto Kalixto", "Cidade": "Mercês", "Bandeira": "", "Produto": "Etanol", "Tipo do Desconto": 0.1, "Condição do Desconto": "Sem aplicativo, desconto no posto.", "Observações": ""}], "Minas Vitória": [], "Muriaé": [{"Posto Concorrente": "Posto ipiranga", "Cidade": "Muriaé", "Bandeira": "Ipiranga", "Produto": "Gasolina", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Pra servidor publico", "Observações": "Não conseguimos saber o valor exato (não quiseram falar e não encontramos ninguém que tenha)."}, {"Posto Concorrente": "Posto ipiranga", "Cidade": "Muriaé", "Bandeira": "Ipiranga", "Produto": "Etanol", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Pra servidor publico", "Observações": "Não conseguimos saber o valor exato (não quiseram falar e não encontramos ninguém que tenha)."}, {"Posto Concorrente": "Posto ipiranga", "Cidade": "Muriaé", "Bandeira": "Ipiranga", "Produto": "Diesel s500", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Pra servidor publico", "Observações": "Não conseguimos saber o valor exato (não quiseram falar e não encontramos ninguém que tenha)."}, {"Posto Concorrente": "Posto ipiranga", "Cidade": "Muriaé", "Bandeira": "Ipiranga", "Produto": "Diesel S10", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Pra servidor publico", "Observações": "Não conseguimos saber o valor exato (não quiseram falar e não encontramos ninguém que tenha)."}, {"Posto Concorrente": "Posto Ale", "Cidade": "Muriaé", "Bandeira": "Ale", "Produto": "Gasolina", "Tipo do Desconto": 0.2, "Condição do Desconto": "Somente para PM", "Observações": "Cortaram o uso de aplicativo"}, {"Posto Concorrente": "Posto Ale", "Cidade": "Muriaé", "Bandeira": "Ale", "Produto": "Etanol", "Tipo do Desconto": 0.2, "Condição do Desconto": "Somente para PM", "Observações": "Cortaram o uso de aplicativo"}, {"Posto Concorrente": "Posto Ale", "Cidade": "Muriaé", "Bandeira": "Ale", "Produto": "Diesel s500", "Tipo do Desconto": 0.2, "Condição do Desconto": "Somente para PM", "Observações": "Cortaram o uso de aplicativo"}, {"Posto Concorrente": "Posto Ale", "Cidade": "Muriaé", "Bandeira": "Ale", "Produto": "Diesel S10", "Tipo do Desconto": 0.2, "Condição do Desconto": "Somente para PM", "Observações": "Cortaram o uso de aplicativo"}, {"Posto Concorrente": "Posto Caçulinha", "Cidade": "Muriaé", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": 0.05, "Condição do Desconto": "Pra cliente grande", "Observações": ""}, {"Posto Concorrente": "Posto Caçulinha", "Cidade": "Muriaé", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": 0.05, "Condição do Desconto": "Pra cliente grande", "Observações": ""}, {"Posto Concorrente": "Agroboi", "Cidade": "Muriaé", "Bandeira": "ALe", "Produto": "Diesel s500", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Oferece via aplicativo", "Observações": "Ganha 1 ponto a cada 3 reais gastos - troca os pontos por produtos vendidos no posto"}, {"Posto Concorrente": "Agroboi", "Cidade": "Muriaé", "Bandeira": "ALe", "Produto": "Diesel S10", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Oferece via aplicativo", "Observações": "Ganha 1 ponto a cada 3 reais gastos - troca os pontos por produtos vendidos no posto"}, {"Posto Concorrente": "Agroboi", "Cidade": "Muriaé", "Bandeira": "ALe", "Produto": "Gasolina", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Oferece via aplicativo", "Observações": "Ganha 1 ponto a cada 3 reais gastos - troca os pontos por produtos vendidos no posto"}, {"Posto Concorrente": "Agroboi", "Cidade": "Muriaé", "Bandeira": "ALe", "Produto": "Etanol", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Oferece via aplicativo", "Observações": "Ganha 1 ponto a cada 3 reais gastos - troca os pontos por produtos vendidos no posto"}, {"Posto Concorrente": "Posto Jussará", "Cidade": "Muriaé", "Bandeira": "Branca", "Produto": "Diesel s500", "Tipo do Desconto": 0.03, "Condição do Desconto": "Para cliente antigo", "Observações": ""}, {"Posto Concorrente": "Posto Jussará", "Cidade": "Muriaé", "Bandeira": "Branca", "Produto": "Diesel S10", "Tipo do Desconto": 0.03, "Condição do Desconto": "Para cliente antigo", "Observações": ""}, {"Posto Concorrente": "Posto Jussará", "Cidade": "Muriaé", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": 0.07, "Condição do Desconto": "Para motorista de aplicativo", "Observações": ""}, {"Posto Concorrente": "Posto Jussará", "Cidade": "Muriaé", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": 0.07, "Condição do Desconto": "Para Mostorista de aplicativo", "Observações": ""}, {"Posto Concorrente": "Posto Ipiranga", "Cidade": "Muriaé", "Bandeira": "Ipiranga", "Produto": "Diesel s500", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Oferece via aplicativo", "Observações": "Aplicativo funciona juntando pontos e permitindo trocar por produtos que eles vendem."}, {"Posto Concorrente": "Posto Ipiranga", "Cidade": "Muriaé", "Bandeira": "Ipiranga", "Produto": "Diesel S10", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Oferece via aplicativo", "Observações": "Aplicativo funciona juntando pontos e permitindo trocar por produtos que eles vendem."}, {"Posto Concorrente": "Posto Ipiranga", "Cidade": "Muriaé", "Bandeira": "Ipiranga", "Produto": "Gasolina", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Oferece via aplicativo", "Observações": "Aplicativo funciona juntando pontos e permitindo trocar por produtos que eles vendem."}, {"Posto Concorrente": "Posto Ipiranga", "Cidade": "Muriaé", "Bandeira": "Ipiranga", "Produto": "Etanol", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Oferece via aplicativo", "Observações": "Aplicativo funciona juntando pontos e permitindo trocar por produtos que eles vendem."}, {"Posto Concorrente": "Posto Petrobras ", "Cidade": "Muriaé", "Bandeira": "Petrobras", "Produto": "Diesel s500", "Tipo do Desconto": 0.1, "Condição do Desconto": "Para motorista de aplicativo", "Observações": ""}, {"Posto Concorrente": "Posto Petrobras ", "Cidade": "Muriaé", "Bandeira": "Petrobras", "Produto": "Diesel S10", "Tipo do Desconto": 0.1, "Condição do Desconto": "Para motorista de aplicativo", "Observações": ""}, {"Posto Concorrente": "Posto Petrobras ", "Cidade": "Muriaé", "Bandeira": "Petrobras", "Produto": "Gasolina", "Tipo do Desconto": 0.1, "Condição do Desconto": "Para motorista de aplicativo", "Observações": ""}, {"Posto Concorrente": "Posto Petrobras ", "Cidade": "Muriaé", "Bandeira": "Petrobras", "Produto": "Etanol", "Tipo do Desconto": 0.1, "Condição do Desconto": "Para motorista de aplicativo", "Observações": ""}, {"Posto Concorrente": "Posto 3D", "Cidade": "Muriaé", "Bandeira": "Petrobras", "Produto": "Diesel s500", "Tipo do Desconto": 0.1, "Condição do Desconto": "Para motorista de aplicativo", "Observações": "Aplicativo igual ao nosso"}, {"Posto Concorrente": "Posto 3D", "Cidade": "Muriaé", "Bandeira": "Petrobras", "Produto": "Diesel S10", "Tipo do Desconto": 0.1, "Condição do Desconto": "Para motorista de aplicativo", "Observações": "Aplicativo igual ao nosso"}, {"Posto Concorrente": "Posto 3D", "Cidade": "Muriaé", "Bandeira": "Petrobras", "Produto": "Gasolina", "Tipo do Desconto": 0.1, "Condição do Desconto": "Para motorista de aplicativo", "Observações": "Aplicativo igual ao nosso"}, {"Posto Concorrente": "Posto 3D", "Cidade": "Muriaé", "Bandeira": "Petrobras", "Produto": "Etanol", "Tipo do Desconto": 0.1, "Condição do Desconto": "Para motorista de aplicativo", "Observações": "Aplicativo igual ao nosso"}], "Tabuleiro": [{"Posto Concorrente": "SBT", "Cidade": "Tabuleiro", "Bandeira": "branca", "Produto": "Gasolina", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto dado por aplicativo", "Observações": "fazem um desconto por fora do aplicativo de 05 centavos, se completar no dinheiro ou pix. (não soma com o desconto do aplicativo)"}, {"Posto Concorrente": "SBT", "Cidade": "Tabuleiro", "Bandeira": "branca", "Produto": "Etanol", "Tipo do Desconto": 0.1, "Condição do Desconto": "Desconto dado por aplicativo", "Observações": "fazem um desconto por fora do aplicativo de 05 centavos, se completar no dinheiro ou pix. (não soma com o desconto do aplicativo)"}, {"Posto Concorrente": "SBT", "Cidade": "Tabuleiro", "Bandeira": "branca", "Produto": "Diesel s500", "Tipo do Desconto": 0.05, "Condição do Desconto": "Desconto dado por aplicativo", "Observações": "fazem um desconto por fora do aplicativo de 05 centavos, se completar no dinheiro ou pix. (não soma com o desconto do aplicativo)"}, {"Posto Concorrente": "SBT", "Cidade": "Tabuleiro", "Bandeira": "branca", "Produto": "Diesel S10", "Tipo do Desconto": 0.05, "Condição do Desconto": "Desconto dado por aplicativo", "Observações": "fazem um desconto por fora do aplicativo de 05 centavos, se completar no dinheiro ou pix. (não soma com o desconto do aplicativo)"}, {"Posto Concorrente": "Posto Trevo", "Cidade": "Tabuleiro", "Bandeira": "Petrobras", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": "Os taxistas estão abastecendo no trevo por que costuma ser o mesmo preço e é bandeirado. "}, {"Posto Concorrente": "Posto Trevo", "Cidade": "Tabuleiro", "Bandeira": "Petrobras", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": "Os taxistas estão abastecendo no trevo por que costuma ser o mesmo preço e é bandeirado. "}, {"Posto Concorrente": "Posto Trevo", "Cidade": "Tabuleiro", "Bandeira": "Petrobras", "Produto": "Diesel s500", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": "Os taxistas estão abastecendo no trevo por que costuma ser o mesmo preço e é bandeirado. "}, {"Posto Concorrente": "Posto Trevo", "Cidade": "Tabuleiro", "Bandeira": "Petrobras", "Produto": "Diesel S10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": "Os taxistas estão abastecendo no trevo por que costuma ser o mesmo preço e é bandeirado. "}], "Visconde": [{"Posto Concorrente": "Auto Posto Lider", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Auto Posto Lider", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Auto Posto Lider", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Diesel S10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Rede Vargas", "Cidade": "Visconde", "Bandeira": "Shell", "Produto": "Gasolina", "Tipo do Desconto": 0.05, "Condição do Desconto": "Faz promoção toda quarta feira", "Observações": "Tem aplicativo, 5 reais de desconto a cada 250 litros. Mesmo com desconto nosso preço é melhor."}, {"Posto Concorrente": "Rede Vargas", "Cidade": "Visconde", "Bandeira": "Shell", "Produto": "Etanol", "Tipo do Desconto": 0, "Condição do Desconto": "", "Observações": "Tem aplicativo, 5 reais de desconto a cada 250 litros. Mesmo com desconto nosso preço é melhor."}, {"Posto Concorrente": "Rede Vargas", "Cidade": "Visconde", "Bandeira": "Shell", "Produto": "Diesel s500", "Tipo do Desconto": 0, "Condição do Desconto": "", "Observações": "Tem aplicativo, 5 reais de desconto a cada 250 litros. Mesmo com desconto nosso preço é melhor."}, {"Posto Concorrente": "Rede Vargas", "Cidade": "Visconde", "Bandeira": "Shell", "Produto": "Diesel S10", "Tipo do Desconto": 0, "Condição do Desconto": "", "Observações": "Tem aplicativo, 5 reais de desconto a cada 250 litros. Mesmo com desconto nosso preço é melhor."}, {"Posto Concorrente": "Posto Estrela", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": 0.5, "Condição do Desconto": "Somente para Taxista ", "Observações": "Mesmo com desconto nosso preço é melhor."}, {"Posto Concorrente": "Posto Estrela", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": 0.5, "Condição do Desconto": "Somente para Taxista ", "Observações": "Mesmo com desconto nosso preço é melhor."}, {"Posto Concorrente": "Posto Estrela", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "S500", "Tipo do Desconto": 0.5, "Condição do Desconto": "Somente para Taxista ", "Observações": "Mesmo com desconto nosso preço é melhor."}, {"Posto Concorrente": "Posto Silva Lima", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Silva Lima", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Silva Lima", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Diesel S10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto São Cristovão", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto São Cristovão", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Diesel S500", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto São Cristovão", "Cidade": "Visconde", "Bandeira": "Branca", "Produto": "Diesel s10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Gentil", "Cidade": "Ubá", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Gentil", "Cidade": "Ubá", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}], "Touro Sentado": [{"Posto Concorrente": "Petro Nova (Gentil)", "Cidade": "Ponte Nova", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": 0.1, "Condição do Desconto": "No aplicativo, para Taxistas ", "Observações": "Mesmo com desconto, nosso preço esta 0,22 centavos mais barato"}, {"Posto Concorrente": "Petro Nova (Gentil) ", "Cidade": "Ponte Nova", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": 0.1, "Condição do Desconto": "No aplicativo, para Taxistas ", "Observações": "Mesmo com desconto, nosso preço esta 0,22 centavos mais barato"}, {"Posto Concorrente": "Petro Nova (Gentil)", "Cidade": "Ponte Nova", "Bandeira": "Branca", "Produto": "Diesel s500", "Tipo do Desconto": 0.1, "Condição do Desconto": "No aplicativo, para Taxistas ", "Observações": "Mesmo com desconto, nosso preço esta 0,22 centavos mais barato"}, {"Posto Concorrente": "Petro Nova (Gentil)", "Cidade": "Ponte Nova", "Bandeira": "Branca", "Produto": "Diesel S10", "Tipo do Desconto": 0.1, "Condição do Desconto": "No aplicativo, para Taxistas ", "Observações": "Mesmo com desconto, nosso preço esta 0,22 centavos mais barato"}, {"Posto Concorrente": "Pracinha - Ponte Nova", "Cidade": "Ponte Nova", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Pracinha - Ponte Nova", "Cidade": "Ponte Nova", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Pracinha - Ponte Nova", "Cidade": "Ponte Nova", "Bandeira": "Branca", "Produto": "Diesel s500", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Desconto  avulso", "Observações": " Está fazendo 25 centavos de desconto ( so para alguns clientes)"}, {"Posto Concorrente": "Pracinha - Ponte Nova", "Cidade": "Ponte Nova", "Bandeira": "Branca", "Produto": "Diesel S10", "Tipo do Desconto": "Oferece", "Condição do Desconto": "Desconto  avulso", "Observações": " Está fazendo 25 centavos de desconto ( so para alguns clientes)"}], "Matipó": [{"Posto Concorrente": "Posto JP", "Cidade": "Matipó", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": "Vende mais caro no crédito"}, {"Posto Concorrente": "Posto JP", "Cidade": "Matipó", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": "Vende mais caro no crédito"}, {"Posto Concorrente": "Posto JP", "Cidade": "Matipó", "Bandeira": "Branca", "Produto": "Diesel s500", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": "Vende mais caro no crédito"}, {"Posto Concorrente": "Posto JP", "Cidade": "Matipó", "Bandeira": "Branca", "Produto": "Diesel S10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": "Vende mais caro no crédito"}, {"Posto Concorrente": "Posto Petrobras ", "Cidade": "Matipó", "Bandeira": "Petrobras", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": "Vende mais caro no crédito"}, {"Posto Concorrente": "Posto Petrobras ", "Cidade": "Matipó", "Bandeira": "Petrobras", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": "Vende mais caro no crédito"}], "Coqueirão": [{"Posto Concorrente": "Giramundo", "Cidade": "Teixeiras", "Bandeira": "Ale", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Giramundo", "Cidade": "Teixeiras", "Bandeira": "Ale", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Giramundo", "Cidade": "Teixeiras", "Bandeira": "Ale", "Produto": "Diesel s500", "Tipo do Desconto": 0.1, "Condição do Desconto": "Abastecer Valores altos com Frenquência", "Observações": "Mesmo com Desconto, nosso preço é pelo menos 0,30 centavos mais barato"}, {"Posto Concorrente": "Giramundo", "Cidade": "Teixeiras", "Bandeira": "Ale", "Produto": "Diesel S10", "Tipo do Desconto": 0.1, "Condição do Desconto": "Abastecer Valores altos com Frenquência", "Observações": "Mesmo com Desconto, nosso preço é pelo menos 0,30 centavos mais barato"}, {"Posto Concorrente": "Auto Posto Teixeiras", "Cidade": "Teixeiras", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Auto Posto Teixeiras", "Cidade": "Teixeiras", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Auto Posto Teixeiras", "Cidade": "Teixeiras", "Bandeira": "Branca", "Produto": "Diesel s500", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Auto Posto Teixeiras", "Cidade": "Teixeiras", "Bandeira": "Branca", "Produto": "Diesel S10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Almeida", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Almeida", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Castelo Branco", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Castelo Branco", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Shell", "Cidade": "Viçosa ", "Bandeira": "Shell", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Shell", "Cidade": "Viçosa ", "Bandeira": "Shell", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Shell", "Cidade": "Viçosa ", "Bandeira": "Shell", "Produto": "Diesel s500", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Shell", "Cidade": "Viçosa ", "Bandeira": "Shell", "Produto": "Diesel S10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": " PostoTip Top", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": " PostoTip Top", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": " PostoTip Top", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Diesel s500", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": " PostoTip Top", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Diesel S10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Milênio", "Cidade": "Viçosa ", "Bandeira": "Petrobras", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Milênio", "Cidade": "Viçosa ", "Bandeira": "Petrobras", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Milênio", "Cidade": "Viçosa ", "Bandeira": "Petrobras", "Produto": "Diesel S10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Posto Vip", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Gasolina", "Tipo do Desconto": 0.03, "Condição do Desconto": "Abastecer Valores altos com Frenquência", "Observações": "Mesmo Com Desconto, nosso preço é bem mais barato."}, {"Posto Concorrente": "Posto Vip", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Etanol", "Tipo do Desconto": 0.03, "Condição do Desconto": "Abastecer Valores altos com Frenquência", "Observações": "Mesmo Com Desconto, nosso preço é bem mais barato."}, {"Posto Concorrente": "Posto Vip", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Diesel s500", "Tipo do Desconto": 0.03, "Condição do Desconto": "Abastecer Valores altos com Frenquência", "Observações": "Mesmo Com Desconto, nosso preço é bem mais barato."}, {"Posto Concorrente": "Posto Vip", "Cidade": "Viçosa ", "Bandeira": "Branca", "Produto": "Diesel S10", "Tipo do Desconto": 0.03, "Condição do Desconto": "Abastecer Valores altos com Frenquência", "Observações": "Mesmo Com Desconto, nosso preço é bem mais barato."}, {"Posto Concorrente": "Auto Posto Shell", "Cidade": "Viçosa ", "Bandeira": "Shell", "Produto": "Gasolina", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Auto Posto Shell", "Cidade": "Viçosa ", "Bandeira": "Shell", "Produto": "Etanol", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Auto Posto Shell", "Cidade": "Viçosa ", "Bandeira": "Shell", "Produto": "Diesel s500", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}, {"Posto Concorrente": "Auto Posto Shell", "Cidade": "Viçosa ", "Bandeira": "Shell", "Produto": "Diesel S10", "Tipo do Desconto": "Não Oferece", "Condição do Desconto": "Não Oferece", "Observações": ""}]};
+    const fuelColors = {};
+
+    let current = Object.keys(data)[0] || '';
+    function init(){
+      const tabs = document.querySelector('.tab-list');
+      Object.keys(data).forEach(key=>{
+        const li = document.createElement('li');
+        li.textContent = key;
+        if(key===current) li.classList.add('active');
+        li.onclick = ()=>select(key);
+        tabs.appendChild(li);
+      });
+      select(current);
+      document.getElementById('searchInput').oninput = e=>filterRows(e.target.value.toLowerCase());
+      document.getElementById('exportPdfBtn').onclick = exportPdf;
+    }
+    function select(key){
+      current=key;
+      document.querySelectorAll('.tab-list li').forEach(li=>li.classList.toggle('active', li.textContent===key));
+      renderTable(key);
+    }
+    function renderTable(sheet){
+      const content=document.querySelector('.tabs-content');
+      content.innerHTML='';
+      const rows=(data[sheet]||[]).sort((a,b)=>a['Posto Concorrente'].localeCompare(b['Posto Concorrente']));
+      const div=document.createElement('div'); div.className='tab-content active';
+      const wrap=document.createElement('div'); wrap.className='table-container';
+      if(!rows.length){
+        wrap.innerHTML='<p>Nenhum dado disponível.</p>';
+      } else {
+        const table=document.createElement('table');
+        const thead=document.createElement('thead'), headRow=document.createElement('tr');
+        Object.keys(rows[0]).forEach(k=>{ const th=document.createElement('th'); th.textContent=k; headRow.appendChild(th); });
+        thead.appendChild(headRow); table.appendChild(thead);
+        const tbody=document.createElement('tbody');
+        let last=null;
+        rows.forEach(r=>{
+          if(r['Posto Concorrente']!==last){
+            last=r['Posto Concorrente'];
+            const gr=document.createElement('tr'); gr.className='group-header';
+            const td=document.createElement('td'); td.colSpan=Object.keys(r).length; td.textContent=last;
+            gr.appendChild(td); tbody.appendChild(gr);
+          }
+          const row=document.createElement('tr'); row.className='data-row';
+          Object.entries(r).forEach(([k,v])=>{
+            const td=document.createElement('td'); td.textContent=v; row.appendChild(td);
+          });
+          const color=fuelColors[r['Tipo de Combustível']]||'';
+          row.style.backgroundColor=color;
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody); wrap.appendChild(table);
+      }
+      div.appendChild(wrap); content.appendChild(div);
+    }
+    function filterRows(term){
+      document.querySelectorAll('.tab-content.active .data-row').forEach(tr=>{
+        tr.style.display = tr.textContent.toLowerCase().includes(term)? 'table-row':'none';
+      });
+    }
+    function exportPdf(){
+      const rows=(data[current]||[]).sort((a,b)=>a['Posto Concorrente'].localeCompare(b['Posto Concorrente']));
+      if(!rows.length) return;
+      const doc=new window.jspdf.jsPDF('l','pt','a4');
+      doc.setFontSize(14);
+      doc.text(`Política de Descontos - ${current}`,40,40);
+      const cols=Object.keys(rows[0]);
+      const body=[]; let last=null;
+      rows.forEach(r=>{
+        if(r['Posto Concorrente']!==last){
+          last=r['Posto Concorrente'];
+          body.push([{content:last, colSpan:cols.length, styles:{fillColor:[238,246,255], textColor:[0,0,0], fontStyle:'bold'}}]);
+        }
+        body.push(cols.map(c=>r[c]));
+      });
+      doc.autoTable({
+        startY:60, head:[cols], body,
+        styles:{fontSize:8},
+        headStyles:{fillColor:[0,119,204]},
+        alternateRowStyles:{fillColor:[245,245,245]}
+      });
+      doc.save(`Politica_de_Descontos_${current}.pdf`);
+    }
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+  </script>
+</body>
+</html>
